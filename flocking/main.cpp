@@ -38,6 +38,42 @@ SDL_Texture* loadTexture(const char* file) {
 	return texture;
 }
 
+void stretchTextureEx(SDL_Renderer* renderer, float x, float y, float w, float h, SDL_Texture* texture, float angle, SDL_RendererFlip flip = SDL_FLIP_NONE) {
+    SDL_Rect src, dst;
+    SDL_Point center;
+
+    src.x = src.y = 0;
+    SDL_QueryTexture(texture, NULL, NULL, &src.w, &src.h);
+
+    dst.x = (int)x;
+    dst.y = (int)y;
+    dst.w = (int)w;
+    dst.h = (int)h;
+
+    center.x = (int)(w / 2.0);
+    center.y = (int)(h / 2.0);
+
+    SDL_RenderCopyEx(renderer, texture, &src, &dst, angle, &center, flip);
+}
+
+void stretchTextureEx_revise(SDL_Renderer* renderer, float x, float y, float w, float h, float CX, float CY, SDL_Texture* texture, float angle, SDL_RendererFlip flip = SDL_FLIP_NONE) {
+    SDL_Rect src, dst;
+    SDL_Point center;
+
+    src.x = src.y = 0;
+    SDL_QueryTexture(texture, NULL, NULL, &src.w, &src.h);
+
+    dst.x = (int)x;
+    dst.y = (int)y;
+    dst.w = (int)w;
+    dst.h = (int)h;
+
+    center.x = (int)CX;
+    center.y = (int)CY;
+
+    SDL_RenderCopyEx(renderer, texture, &src, &dst, angle, &center, flip);
+}
+
 void drawTexture(SDL_Renderer* renderer, float x, float y, SDL_Texture* texture) {
     SDL_Rect src, dst;
 
@@ -66,7 +102,7 @@ int main(int argc, char* argv[])
 
     SDL_Texture* texture;
 
-    texture = loadTexture("resource\\abc.png");
+    texture = loadTexture("resource\\ground.png");
 
 
     while (!quit) {
