@@ -10,6 +10,8 @@
 #pragma comment (lib,"SDL2_image")
 #pragma comment (lib, "opengl32.lib")
 
+# define fpss 60
+
 typedef struct creature {
     float x;
     float y;
@@ -100,12 +102,21 @@ int main(int argc, char* argv[])
     bool quit = false;
     SDL_Event event;
 
-    SDL_Texture* texture;
+    SDL_Texture* back_ground;
+    SDL_Texture* creature;
 
-    texture = loadTexture("resource\\ground.png");
+    back_ground = loadTexture("resource\\ground.png");
+    creature = loadTexture("resource\\creature.png");
 
+    int total_frame_start = 0;
+    int total_frame_end = 0;
+    float total_time = 0;
+    int total_delay_time = 0;
 
     while (!quit) {
+
+        total_frame_start = SDL_GetPerformanceCounter();
+
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
             case SDL_QUIT:
@@ -113,11 +124,18 @@ int main(int argc, char* argv[])
                 break;
             }
         }
-        {
-            drawTexture(renderer, 0, 0, texture);
+
+            drawTexture(renderer, 0, 0, back_ground);
             SDL_RenderPresent(renderer);
-        }
-        SDL_Delay(1);
+
+            total_frame_end = SDL_GetPerformanceCounter();
+            total_time = (float)(total_frame_end - total_frame_start) / ((float)SDL_GetPerformanceFrequency());
+            total_delay_time = (int)(((1.0 / fpss) - total_time) * 1000);
+
+            if (total_delay_time > 0) SDL_Delay(total_delay_time);
+            else SDL_Delay(1);
+            SDL_RenderClear(renderer);
+
     }
 
 
