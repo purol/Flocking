@@ -74,7 +74,7 @@ void stretchTextureEx_revise(SDL_Renderer* renderer, float x, float y, float w, 
     center.y = (int)CY;
 
     SDL_RenderCopyEx(renderer, texture, &src, &dst, angle, &center, flip);
-}
+} // angle : degree
 
 void drawTexture(SDL_Renderer* renderer, float x, float y, SDL_Texture* texture) {
     SDL_Rect src, dst;
@@ -99,6 +99,10 @@ int main(int argc, char* argv[])
     window = SDL_CreateWindow("Flocking", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1000, 700, SDL_RENDERER_ACCELERATED);
     renderer = SDL_CreateRenderer(window, SDL_VIDEO_RENDER_OGL, 0);
 
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2");
+
     bool quit = false;
     SDL_Event event;
 
@@ -113,6 +117,16 @@ int main(int argc, char* argv[])
     float total_time = 0;
     int total_delay_time = 0;
 
+    int num = 0;
+    int temp_num = 0;
+    Creature * CRT = NULL;
+    Creature* temp_CRT=NULL;
+
+    int i = 0;
+
+    bool Q_key = false;
+    bool W_key = false;
+
     while (!quit) {
 
         total_frame_start = SDL_GetPerformanceCounter();
@@ -122,10 +136,74 @@ int main(int argc, char* argv[])
             case SDL_QUIT:
                 quit = true;
                 break;
+            case SDL_KEYDOWN: // q means add a creature, w means delete a creature
+                if (event.key.keysym.sym == SDLK_q && Q_key == false) {
+                    temp_num = num + 1;
+                    temp_CRT = (Creature*)malloc(sizeof(Creature) * temp_num);
+                    for (i = 0; i < num; i++) { // copy the information of creature to temp_creature
+                        temp_CRT[i].x = CRT[i].x;
+                        temp_CRT[i].y = CRT[i].y;
+                        temp_CRT[i].angle = CRT[i].angle;
+                        temp_CRT[i].velocity = CRT[i].velocity;
+                        temp_CRT[i].acceleration = CRT[i].acceleration;
+                    }
+                    free(CRT); CRT = NULL; // return CRT pointer to null
+
+                    temp_CRT[temp_num - 1].x = 0;
+                    temp_CRT[temp_num - 1].y = 0;
+                    temp_CRT[temp_num - 1].angle = 0;
+                    temp_CRT[temp_num - 1].velocity = 0;
+                    temp_CRT[temp_num - 1].acceleration = 0;
+
+                    CRT = temp_CRT; num = temp_num;
+                    temp_num = 0; temp_CRT = NULL;
+
+                    Q_key = true;
+
+                }
+                else if (event.key.keysym.sym == SDLK_w && W_key == false) {
+                    if (num == 0) break;
+                    else if (num > 0) {
+                        temp_num = num - 1;
+                        temp_CRT = (Creature*)malloc(sizeof(Creature) * temp_num);
+                        for (i = 0; i < temp_num; i++) { // copy the information of creature to temp_creature
+                            temp_CRT[i].x = CRT[i].x;
+                            temp_CRT[i].y = CRT[i].y;
+                            temp_CRT[i].angle = CRT[i].angle;
+                            temp_CRT[i].velocity = CRT[i].velocity;
+                            temp_CRT[i].acceleration = CRT[i].acceleration;
+                        }
+                        free(CRT); CRT = NULL; // return CRT pointer to null
+
+                        CRT = temp_CRT; num = temp_num;
+                        temp_num = 0; temp_CRT = NULL;
+                    }
+
+                    W_key = true;
+                }
+                break;
+            case SDL_KEYUP:
+                if (event.key.keysym.sym == SDLK_q && Q_key == true) {
+                    Q_key = false;
+                }
+                if (event.key.keysym.sym == SDLK_w && W_key == true) {
+                    W_key = false;
+                }
+
             }
+ //           printf("cccc ");
         }
 
             drawTexture(renderer, 0, 0, back_ground);
+
+      //      drawTexture(renderer, 0, 0, creature);
+      //     stretchTextureEx_revise(renderer, 0, 0, 17, 25, 8.5, 16.669, creature, 180);
+
+            for (i = 0; i < num; i ++) {
+                stretchTextureEx_revise(renderer, CRT[i].x-8.5, CRT[i].y-16.669, 17, 25, 8.5, 16.669, creature, CRT[i].angle);
+ //               printf("asdf ");
+            }
+ //           printf("%d ",num);
             SDL_RenderPresent(renderer);
 
             total_frame_end = SDL_GetPerformanceCounter();

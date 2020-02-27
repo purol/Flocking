@@ -1,4 +1,7 @@
 ﻿  main.cpp
-C:\Users\purol\source\repos\flocking\flocking\main.cpp(118,54): warning C4244: '=': 'Uint64' から 'int' への変換です。データが失われる可能性があります。
-C:\Users\purol\source\repos\flocking\flocking\main.cpp(131,56): warning C4244: '=': 'Uint64' から 'int' への変換です。データが失われる可能性があります。
+C:\Users\purol\source\repos\flocking\flocking\main.cpp(132,54): warning C4244: '=': 'Uint64' から 'int' への変換です。データが失われる可能性があります。
+C:\Users\purol\source\repos\flocking\flocking\main.cpp(203,125): warning C4305: '引数': 'double' から 'float' へ切り詰めます。
+C:\Users\purol\source\repos\flocking\flocking\main.cpp(203,73): warning C4244: '引数': 'double' から 'float' への変換です。データが失われる可能性があります。
+C:\Users\purol\source\repos\flocking\flocking\main.cpp(203,59): warning C4244: '引数': 'double' から 'float' への変換です。データが失われる可能性があります。
+C:\Users\purol\source\repos\flocking\flocking\main.cpp(209,56): warning C4244: '=': 'Uint64' から 'int' への変換です。データが失われる可能性があります。
   flocking.vcxproj -> C:\Users\purol\source\repos\flocking\x64\Debug\flocking.exe
