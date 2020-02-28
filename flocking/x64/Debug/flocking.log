@@ -1,7 +1,28 @@
 ﻿  main.cpp
-C:\Users\purol\source\repos\flocking\flocking\main.cpp(132,54): warning C4244: '=': 'Uint64' から 'int' への変換です。データが失われる可能性があります。
-C:\Users\purol\source\repos\flocking\flocking\main.cpp(203,125): warning C4305: '引数': 'double' から 'float' へ切り詰めます。
-C:\Users\purol\source\repos\flocking\flocking\main.cpp(203,73): warning C4244: '引数': 'double' から 'float' への変換です。データが失われる可能性があります。
-C:\Users\purol\source\repos\flocking\flocking\main.cpp(203,59): warning C4244: '引数': 'double' から 'float' への変換です。データが失われる可能性があります。
-C:\Users\purol\source\repos\flocking\flocking\main.cpp(209,56): warning C4244: '=': 'Uint64' から 'int' への変換です。データが失われる可能性があります。
+C:\Users\purol\source\repos\flocking\flocking\main.cpp(154,54): warning C4244: '=': 'Uint64' から 'int' への変換です。データが失われる可能性があります。
+C:\Users\purol\source\repos\flocking\flocking\main.cpp(174,55): warning C4244: '=': 'int' から 'float' への変換です。データが失われる可能性があります。
+C:\Users\purol\source\repos\flocking\flocking\main.cpp(175,55): warning C4244: '=': 'int' から 'float' への変換です。データが失われる可能性があります。
+C:\Users\purol\source\repos\flocking\flocking\main.cpp(176,59): warning C4244: '=': 'int' から 'float' への変換です。データが失われる可能性があります。
+C:\Users\purol\source\repos\flocking\flocking\main.cpp(177,62): warning C4244: '=': 'int' から 'float' への変換です。データが失われる可能性があります。
+C:\Users\purol\source\repos\flocking\flocking\main.cpp(178,61): warning C4244: '=': 'int' から 'float' への変換です。データが失われる可能性があります。
+C:\Users\purol\source\repos\flocking\flocking\main.cpp(225,125): warning C4305: '引数': 'double' から 'float' へ切り詰めます。
+C:\Users\purol\source\repos\flocking\flocking\main.cpp(225,73): warning C4244: '引数': 'double' から 'float' への変換です。データが失われる可能性があります。
+C:\Users\purol\source\repos\flocking\flocking\main.cpp(225,59): warning C4244: '引数': 'double' から 'float' への変換です。データが失われる可能性があります。
+C:\Users\purol\source\repos\flocking\flocking\main.cpp(237,56): warning C4244: '=': 'Uint64' から 'int' への変換です。データが失われる可能性があります。
+C:\Users\purol\source\repos\flocking\flocking\main.cpp(261,27): warning C4244: '=': 'double' から 'float' への変換です。データが失われる可能性があります。
+C:\Users\purol\source\repos\flocking\flocking\main.cpp(262,27): warning C4244: '=': 'double' から 'float' への変換です。データが失われる可能性があります。
+C:\Users\purol\source\repos\flocking\flocking\main.cpp(263,35): warning C4244: '=': 'double' から 'float' への変換です。データが失われる可能性があります。
+C:\Users\purol\source\repos\flocking\flocking\main.cpp(280,32): warning C4244: '=': 'double' から 'float' への変換です。データが失われる可能性があります。
+C:\Users\purol\source\repos\flocking\flocking\main.cpp(314,32): warning C4244: '=': 'double' から 'float' への変換です。データが失われる可能性があります。
+C:\Users\purol\source\repos\flocking\flocking\main.cpp(330,59): warning C4244: '=': 'double' から 'float' への変換です。データが失われる可能性があります。
+C:\Users\purol\source\repos\flocking\flocking\main.cpp(331,52): warning C4244: '=': 'double' から 'float' への変換です。データが失われる可能性があります。
+C:\Users\purol\source\repos\flocking\flocking\main.cpp(334,48): warning C4244: '=': 'double' から 'float' への変換です。データが失われる可能性があります。
+C:\Users\purol\source\repos\flocking\flocking\main.cpp(335,53): warning C4244: '=': 'double' から 'float' への変換です。データが失われる可能性があります。
+C:\Users\purol\source\repos\flocking\flocking\main.cpp(364,32): warning C4244: '=': 'double' から 'float' への変換です。データが失われる可能性があります。
+C:\Users\purol\source\repos\flocking\flocking\main.cpp(373,67): warning C4244: '=': 'double' から 'float' への変換です。データが失われる可能性があります。
+C:\Users\purol\source\repos\flocking\flocking\main.cpp(374,60): warning C4244: '=': 'double' から 'float' への変換です。データが失われる可能性があります。
+C:\Users\purol\source\repos\flocking\flocking\main.cpp(377,56): warning C4244: '=': 'double' から 'float' への変換です。データが失われる可能性があります。
+C:\Users\purol\source\repos\flocking\flocking\main.cpp(378,61): warning C4244: '=': 'double' から 'float' への変換です。データが失われる可能性があります。
+C:\Users\purol\source\repos\flocking\flocking\main.cpp(387,97): warning C4244: '=': 'double' から 'float' への変換です。データが失われる可能性があります。
+C:\Users\purol\source\repos\flocking\flocking\main.cpp(388,104): warning C4244: '=': 'double' から 'float' への変換です。データが失われる可能性があります。
   flocking.vcxproj -> C:\Users\purol\source\repos\flocking\x64\Debug\flocking.exe
