@@ -19,10 +19,10 @@
 # define max_ang_speed 300
 # define effective_distance 100.0
 # define ang_vel_study 20
-# define vel_study 5.0
-# define coh_ang_vel_study 10
-# define seperation_dis_cons 50
-# define sep_ang_vel_study 300
+# define vel_study 30.0
+# define coh_ang_vel_study 3.0
+# define seperation_dis_cons 40
+# define sep_ang_vel_study 10
 
 typedef struct creature {
     float x;
@@ -149,6 +149,19 @@ int main(int argc, char* argv[])
 
     srand((unsigned int)time(NULL));
 
+    num = 2;
+    CRT = (Creature*)malloc(sizeof(Creature) * 2);
+    CRT[0].x = 350;
+    CRT[0].y=150;
+    CRT[0].angle=180;
+    CRT[0].velocity=200;
+    CRT[0].ang_vel=0;
+    CRT[1].x = 700;
+    CRT[1].y = 530;
+    CRT[1].angle = 270;
+    CRT[1].velocity = 200;
+    CRT[1].ang_vel = 0;
+
     while (!quit) {
 
         total_frame_start = SDL_GetPerformanceCounter();
@@ -226,8 +239,8 @@ int main(int argc, char* argv[])
  //               printf("asdf ");
             }
   //          printf("%d ",num);
-  //          alignment(CRT, num);
-  //          cohesion(CRT, num);
+            alignment(CRT, num);
+            cohesion(CRT, num);
             seperation(CRT, num);
             move(CRT, num);
             clean_ang_vel(CRT, num);
@@ -291,6 +304,8 @@ void alignment(Creature* cr, int num) {
             float ang_del = sum_angle - cr[i].angle;
             if(ang_del >= 0 && ang_del <= 180) cr[i].ang_vel = cr[i].ang_vel + (sum_angle - cr[i].angle) * ang_vel_study;
             else if(ang_del >= 180 && ang_del <= 360) cr[i].ang_vel = cr[i].ang_vel + ((sum_angle - cr[i].angle)-360) * ang_vel_study;
+            else if(ang_del <= 0 && ang_del >= -180) cr[i].ang_vel = cr[i].ang_vel + (sum_angle - cr[i].angle) * ang_vel_study;
+            else if(ang_del <= -180 && ang_del >= -360)cr[i].ang_vel = cr[i].ang_vel + ((sum_angle - cr[i].angle) + 360) * ang_vel_study;
             cr[i].velocity = cr[i].velocity + (sum_velocity - cr[i].velocity) * ang_vel_study;
         }
         if (cr[i].ang_vel > max_ang_speed) cr[i].ang_vel = max_ang_speed;
@@ -322,8 +337,8 @@ void cohesion(Creature* cr, int num) {
         if (k > 0) {
             sum_x = sum_x / k;
             sum_y = sum_y / k;
-            float del_x = sum_x - cr[j].x;
-            float del_y = sum_y - cr[j].y;
+            float del_x = sum_x - cr[i].x;
+            float del_y = sum_y - cr[i].y;
             float del_angle = 0;
             float deldel_angle = 0;
             if (del_x > 0) {
@@ -343,6 +358,8 @@ void cohesion(Creature* cr, int num) {
             deldel_angle = del_angle - cr[i].angle;
             if (deldel_angle >= 0 && deldel_angle <= 180) cr[i].ang_vel = cr[i].ang_vel + deldel_angle * coh_ang_vel_study;
             else if (deldel_angle >= 180 && deldel_angle <= 360) cr[i].ang_vel = cr[i].ang_vel + (deldel_angle - 360) * coh_ang_vel_study;
+            else if (deldel_angle <= 0 && deldel_angle >= -180) cr[i].ang_vel = cr[i].ang_vel + deldel_angle * coh_ang_vel_study;
+            else if (deldel_angle <= -180 && deldel_angle >= -360)cr[i].ang_vel = cr[i].ang_vel + (deldel_angle + 360) * coh_ang_vel_study;
  
         }
         if (cr[i].ang_vel > max_ang_speed) cr[i].ang_vel = max_ang_speed;
@@ -362,7 +379,11 @@ void seperation(Creature* cr, int num) {
             float distance = 0;
             if (j != i) {
                 distance = sqrt((cr[i].x - cr[j].x) * (cr[i].x - cr[j].x) + (cr[i].y - cr[j].y) * (cr[i].y - cr[j].y));
+  //              printf("%f ", distance);
                 if (distance < effective_distance) {
+                    if (i == 1) {
+  //                      printf("ddd");
+                    }
                     float del_x = (cr[i].x - cr[j].x);
                     float del_y = (cr[i].y - cr[j].y);
 
@@ -384,9 +405,10 @@ void seperation(Creature* cr, int num) {
                     else if (del_x == 0 && del_y == 0) del_angle = 0;
 
                     deldel_angle = del_angle - cr[i].angle;
-                    if (deldel_angle >= 0 && deldel_angle <= 180) cr[i].ang_vel = cr[i].ang_vel + deldel_angle * sep_ang_vel_study*(1.0/(1+exp(-distance+ seperation_dis_cons)));
-                    else if (deldel_angle >= 180 && deldel_angle <= 360) cr[i].ang_vel = cr[i].ang_vel + (deldel_angle - 360) * sep_ang_vel_study * (1.0 / (1 + exp(-distance + seperation_dis_cons)));
-
+                    if (deldel_angle >= 0 && deldel_angle <= 180) cr[i].ang_vel = cr[i].ang_vel + deldel_angle * sep_ang_vel_study*(1.0/(1+exp(distance- seperation_dis_cons)));
+                    else if (deldel_angle >= 180 && deldel_angle <= 360) cr[i].ang_vel = cr[i].ang_vel + (deldel_angle - 360) * sep_ang_vel_study * (1.0 / (1 + exp(distance - seperation_dis_cons)));
+                    else if (deldel_angle <= 0 && deldel_angle >= -180) cr[i].ang_vel = cr[i].ang_vel + deldel_angle * sep_ang_vel_study * (1.0 / (1 + exp(distance - seperation_dis_cons)));
+                    else if (deldel_angle <= -180 && deldel_angle >= -360)cr[i].ang_vel = cr[i].ang_vel + (deldel_angle + 360) * sep_ang_vel_study * (1.0 / (1 + exp(distance - seperation_dis_cons)));
                 }
             }
         } // put ang vel out of here
