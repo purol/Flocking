@@ -23,14 +23,28 @@
 # define coh_ang_vel_study 3.0
 # define seperation_dis_cons 40
 # define sep_ang_vel_study 10
+# define stuff_effective_distance 100
+# define stuff_ang_vel_study 10
+# define stuff_dis_cons 100
+# define screen_margin 50
+# define wall_ang_vel_study 200
+# define wall_dis_cons 60
 
 typedef struct creature {
     float x;
     float y;
     float angle; // degree
     float velocity;
+    float del_velocity;
     float ang_vel;
+    float del_ang_vel;
 }Creature;
+
+typedef struct stuff {
+    float x;
+    float y;
+    bool type; // 0:repulsion, 1:attraction
+}Stuff;
 
 int ren_num(int min, int max);
 void move(Creature* cr, int num);
@@ -38,6 +52,9 @@ void alignment(Creature* cr, int num);
 void cohesion(Creature* cr, int num);
 void clean_ang_vel(Creature* cr, int num);
 void seperation(Creature* cr, int num);
+void del_vel_and_vel_apply(Creature* cr, int num);
+void avoid_stuff(Creature* cr, int num, Stuff* sf, int num_sf);
+void wall(Creature* cr, int num);
 
 SDL_Window* window;
 SDL_Renderer* renderer;
@@ -142,6 +159,9 @@ int main(int argc, char* argv[])
     Creature * CRT = NULL;
     Creature* temp_CRT=NULL;
 
+    int num_stuff = 0;
+    Stuff* sf = NULL;
+
     int i = 0;
 
     bool Q_key = false;
@@ -149,18 +169,23 @@ int main(int argc, char* argv[])
 
     srand((unsigned int)time(NULL));
 
-    num = 2;
+ /*   num = 2;
     CRT = (Creature*)malloc(sizeof(Creature) * 2);
     CRT[0].x = 350;
     CRT[0].y=150;
     CRT[0].angle=180;
     CRT[0].velocity=200;
+    CRT[0].del_velocity = 0;
     CRT[0].ang_vel=0;
+    CRT[0].del_ang_vel = 0;
     CRT[1].x = 700;
     CRT[1].y = 530;
     CRT[1].angle = 270;
     CRT[1].velocity = 200;
+    CRT[1].del_velocity = 0;
     CRT[1].ang_vel = 0;
+    CRT[1].del_ang_vel = 0;
+   */
 
     while (!quit) {
 
@@ -180,7 +205,9 @@ int main(int argc, char* argv[])
                         temp_CRT[i].y = CRT[i].y;
                         temp_CRT[i].angle = CRT[i].angle;
                         temp_CRT[i].velocity = CRT[i].velocity;
+                        temp_CRT[i].del_velocity = CRT[i].del_velocity;
                         temp_CRT[i].ang_vel = CRT[i].ang_vel;
+                        temp_CRT[i].del_ang_vel = CRT[i].del_ang_vel;
                     }
                     free(CRT); CRT = NULL; // return CRT pointer to null
 
@@ -188,7 +215,9 @@ int main(int argc, char* argv[])
                     temp_CRT[temp_num - 1].y = ren_num(0,screen_h);
                     temp_CRT[temp_num - 1].angle = ren_num(0, 360);
                     temp_CRT[temp_num - 1].velocity = ren_num(max_speed, max_speed);
+                    temp_CRT[temp_num - 1].del_velocity = 0;
                     temp_CRT[temp_num - 1].ang_vel = ren_num(-max_ang_speed, max_ang_speed);
+                    temp_CRT[temp_num - 1].del_ang_vel = 0;
 
                     CRT = temp_CRT; num = temp_num;
                     temp_num = 0; temp_CRT = NULL;
@@ -206,7 +235,9 @@ int main(int argc, char* argv[])
                             temp_CRT[i].y = CRT[i].y;
                             temp_CRT[i].angle = CRT[i].angle;
                             temp_CRT[i].velocity = CRT[i].velocity;
+                            temp_CRT[i].del_velocity = CRT[i].del_velocity;
                             temp_CRT[i].ang_vel = CRT[i].ang_vel;
+                            temp_CRT[i].del_ang_vel = CRT[i].del_ang_vel;
                         }
                         free(CRT); CRT = NULL; // return CRT pointer to null
 
@@ -242,8 +273,11 @@ int main(int argc, char* argv[])
             alignment(CRT, num);
             cohesion(CRT, num);
             seperation(CRT, num);
+            del_vel_and_vel_apply(CRT, num);
+            avoid_stuff(CRT, num, sf, num_stuff);
+            wall(CRT, num);
             move(CRT, num);
-            clean_ang_vel(CRT, num);
+ //           clean_ang_vel(CRT, num);
 
             SDL_RenderPresent(renderer);
 
@@ -302,16 +336,13 @@ void alignment(Creature* cr, int num) {
             sum_angle = sum_angle / k;
             sum_velocity = sum_velocity / k;
             float ang_del = sum_angle - cr[i].angle;
-            if(ang_del >= 0 && ang_del <= 180) cr[i].ang_vel = cr[i].ang_vel + (sum_angle - cr[i].angle) * ang_vel_study;
-            else if(ang_del >= 180 && ang_del <= 360) cr[i].ang_vel = cr[i].ang_vel + ((sum_angle - cr[i].angle)-360) * ang_vel_study;
-            else if(ang_del <= 0 && ang_del >= -180) cr[i].ang_vel = cr[i].ang_vel + (sum_angle - cr[i].angle) * ang_vel_study;
-            else if(ang_del <= -180 && ang_del >= -360)cr[i].ang_vel = cr[i].ang_vel + ((sum_angle - cr[i].angle) + 360) * ang_vel_study;
-            cr[i].velocity = cr[i].velocity + (sum_velocity - cr[i].velocity) * ang_vel_study;
+            if(ang_del >= 0 && ang_del <= 180) cr[i].del_ang_vel = cr[i].del_ang_vel + (sum_angle - cr[i].angle) * ang_vel_study;
+            else if(ang_del >= 180 && ang_del <= 360) cr[i].del_ang_vel = cr[i].del_ang_vel + ((sum_angle - cr[i].angle)-360) * ang_vel_study;
+            else if(ang_del <= 0 && ang_del >= -180) cr[i].del_ang_vel = cr[i].del_ang_vel + (sum_angle - cr[i].angle) * ang_vel_study;
+            else if(ang_del <= -180 && ang_del >= -360)cr[i].del_ang_vel = cr[i].del_ang_vel + ((sum_angle - cr[i].angle) + 360) * ang_vel_study;
+            cr[i].del_velocity = cr[i].del_velocity + (sum_velocity - cr[i].velocity) * ang_vel_study;
         }
-        if (cr[i].ang_vel > max_ang_speed) cr[i].ang_vel = max_ang_speed;
-        else if (cr[i].ang_vel < -max_ang_speed) cr[i].ang_vel = -max_ang_speed;
-        if (cr[i].velocity > max_speed) cr[i].velocity = max_speed;
-        else if (cr[i].velocity < -max_speed) cr[i].velocity = -max_speed;
+
     }
 
 }
@@ -356,16 +387,13 @@ void cohesion(Creature* cr, int num) {
             else if (del_x == 0 && del_y == 0) del_angle = 0;
             
             deldel_angle = del_angle - cr[i].angle;
-            if (deldel_angle >= 0 && deldel_angle <= 180) cr[i].ang_vel = cr[i].ang_vel + deldel_angle * coh_ang_vel_study;
-            else if (deldel_angle >= 180 && deldel_angle <= 360) cr[i].ang_vel = cr[i].ang_vel + (deldel_angle - 360) * coh_ang_vel_study;
-            else if (deldel_angle <= 0 && deldel_angle >= -180) cr[i].ang_vel = cr[i].ang_vel + deldel_angle * coh_ang_vel_study;
-            else if (deldel_angle <= -180 && deldel_angle >= -360)cr[i].ang_vel = cr[i].ang_vel + (deldel_angle + 360) * coh_ang_vel_study;
+            if (deldel_angle >= 0 && deldel_angle <= 180) cr[i].del_ang_vel = cr[i].del_ang_vel + deldel_angle * coh_ang_vel_study;
+            else if (deldel_angle >= 180 && deldel_angle <= 360) cr[i].del_ang_vel = cr[i].del_ang_vel + (deldel_angle - 360) * coh_ang_vel_study;
+            else if (deldel_angle <= 0 && deldel_angle >= -180) cr[i].del_ang_vel = cr[i].del_ang_vel + deldel_angle * coh_ang_vel_study;
+            else if (deldel_angle <= -180 && deldel_angle >= -360)cr[i].del_ang_vel = cr[i].del_ang_vel + (deldel_angle + 360) * coh_ang_vel_study;
  
         }
-        if (cr[i].ang_vel > max_ang_speed) cr[i].ang_vel = max_ang_speed;
-        else if (cr[i].ang_vel < -max_ang_speed) cr[i].ang_vel = -max_ang_speed;
-        if (cr[i].velocity > max_speed) cr[i].velocity = max_speed;
-        else if (cr[i].velocity < -max_speed) cr[i].velocity = -max_speed;
+
     }
 
 }
@@ -405,20 +433,170 @@ void seperation(Creature* cr, int num) {
                     else if (del_x == 0 && del_y == 0) del_angle = 0;
 
                     deldel_angle = del_angle - cr[i].angle;
-                    if (deldel_angle >= 0 && deldel_angle <= 180) cr[i].ang_vel = cr[i].ang_vel + deldel_angle * sep_ang_vel_study*(1.0/(1+exp(distance- seperation_dis_cons)));
-                    else if (deldel_angle >= 180 && deldel_angle <= 360) cr[i].ang_vel = cr[i].ang_vel + (deldel_angle - 360) * sep_ang_vel_study * (1.0 / (1 + exp(distance - seperation_dis_cons)));
-                    else if (deldel_angle <= 0 && deldel_angle >= -180) cr[i].ang_vel = cr[i].ang_vel + deldel_angle * sep_ang_vel_study * (1.0 / (1 + exp(distance - seperation_dis_cons)));
-                    else if (deldel_angle <= -180 && deldel_angle >= -360)cr[i].ang_vel = cr[i].ang_vel + (deldel_angle + 360) * sep_ang_vel_study * (1.0 / (1 + exp(distance - seperation_dis_cons)));
+                    if (deldel_angle >= 0 && deldel_angle <= 180) cr[i].del_ang_vel = cr[i].del_ang_vel + deldel_angle * sep_ang_vel_study*(1.0/(1+exp(distance- seperation_dis_cons)));
+                    else if (deldel_angle >= 180 && deldel_angle <= 360) cr[i].del_ang_vel = cr[i].del_ang_vel + (deldel_angle - 360) * sep_ang_vel_study * (1.0 / (1 + exp(distance - seperation_dis_cons)));
+                    else if (deldel_angle <= 0 && deldel_angle >= -180) cr[i].del_ang_vel = cr[i].del_ang_vel + deldel_angle * sep_ang_vel_study * (1.0 / (1 + exp(distance - seperation_dis_cons)));
+                    else if (deldel_angle <= -180 && deldel_angle >= -360)cr[i].del_ang_vel = cr[i].del_ang_vel + (deldel_angle + 360) * sep_ang_vel_study * (1.0 / (1 + exp(distance - seperation_dis_cons)));
                 }
             }
-        } // put ang vel out of here
+        } 
+
+    }
+
+}
+
+void del_vel_and_vel_apply(Creature* cr, int num) {
+    int i = 0;
+    for (i = 0; i < num; i++) { // i'th creature try to align with theri neighborhood
+        cr[i].ang_vel = cr[i].ang_vel+ cr[i].del_ang_vel;
+        cr[i].velocity = cr[i].velocity + cr[i].del_velocity;
 
         if (cr[i].ang_vel > max_ang_speed) cr[i].ang_vel = max_ang_speed;
         else if (cr[i].ang_vel < -max_ang_speed) cr[i].ang_vel = -max_ang_speed;
         if (cr[i].velocity > max_speed) cr[i].velocity = max_speed;
         else if (cr[i].velocity < -max_speed) cr[i].velocity = -max_speed;
+
+        cr[i].del_ang_vel = 0;
+        cr[i].del_velocity = 0;
+    }
+}
+
+void avoid_stuff(Creature* cr, int num, Stuff *sf, int num_sf) {
+    int i = 0;
+    int j = 0;
+
+    for (i = 0; i < num; i++) { // i'th creature with stuff
+
+        for (j = 0; j < num_sf; j++) {
+            float distance = 0;
+            if (sf[j].type == false) {
+                distance = sqrt((cr[i].x - sf[j].x) * (cr[i].x - sf[j].x) + (cr[i].y - sf[j].y) * (cr[i].y - sf[j].y));
+                //              printf("%f ", distance);
+                if (distance < stuff_effective_distance) {
+
+                    float del_x = (cr[i].x - sf[j].x);
+                    float del_y = (cr[i].y - sf[j].y);
+
+                    float del_angle = 0;
+                    float deldel_angle = 0;
+
+                    if (del_x > 0) {
+                        if (del_y < 0) del_angle = 180 * (1 / pi) * atan(-del_x / del_y);
+                        else if (del_y > 0) del_angle = 90 + 180 * (1 / pi) * atan(del_y / del_x);
+                    }
+                    else if (del_x < 0) {
+                        if (del_y < 0) del_angle = 270 + 180 * (1 / pi) * atan(del_y / del_x);
+                        else if (del_y > 0) del_angle = 180 + 180 * (1 / pi) * atan(-del_x / del_y);
+                    }
+                    if (del_x == 0 && del_y < 0)del_angle = 0;
+                    else if (del_x == 0 && del_y > 0)del_angle = 180;
+                    else if (del_x > 0 && del_y == 0)del_angle = 90;
+                    else if (del_x < 0 && del_y == 0)del_angle = 270;
+                    else if (del_x == 0 && del_y == 0) del_angle = 0;
+
+                    deldel_angle = del_angle - cr[i].angle;
+                    if (deldel_angle >= 0 && deldel_angle <= 180) cr[i].del_ang_vel = cr[i].del_ang_vel + deldel_angle * stuff_ang_vel_study * (1.0 / (1 + exp(distance - stuff_dis_cons)));
+                    else if (deldel_angle >= 180 && deldel_angle <= 360) cr[i].del_ang_vel = cr[i].del_ang_vel + (deldel_angle - 360) * stuff_ang_vel_study * (1.0 / (1 + exp(distance - stuff_dis_cons)));
+                    else if (deldel_angle <= 0 && deldel_angle >= -180) cr[i].del_ang_vel = cr[i].del_ang_vel + deldel_angle * stuff_ang_vel_study * (1.0 / (1 + exp(distance - stuff_dis_cons)));
+                    else if (deldel_angle <= -180 && deldel_angle >= -360)cr[i].del_ang_vel = cr[i].del_ang_vel + (deldel_angle + 360) * stuff_ang_vel_study * (1.0 / (1 + exp(distance - stuff_dis_cons)));
+                }
+            }
+            else if(sf[j].type == true) {
+                distance = sqrt((cr[i].x - sf[j].x) * (cr[i].x - sf[j].x) + (cr[i].y - sf[j].y) * (cr[i].y - sf[j].y));
+                //              printf("%f ", distance);
+                if (distance < stuff_effective_distance) {
+
+                    float del_x = (cr[i].x - sf[j].x);
+                    float del_y = (cr[i].y - sf[j].y);
+
+                    float del_angle = 0;
+                    float deldel_angle = 0;
+
+                    if (del_x > 0) {
+                        if (del_y < 0) del_angle = 180 * (1 / pi) * atan(-del_x / del_y);
+                        else if (del_y > 0) del_angle = 90 + 180 * (1 / pi) * atan(del_y / del_x);
+                    }
+                    else if (del_x < 0) {
+                        if (del_y < 0) del_angle = 270 + 180 * (1 / pi) * atan(del_y / del_x);
+                        else if (del_y > 0) del_angle = 180 + 180 * (1 / pi) * atan(-del_x / del_y);
+                    }
+                    if (del_x == 0 && del_y < 0)del_angle = 0;
+                    else if (del_x == 0 && del_y > 0)del_angle = 180;
+                    else if (del_x > 0 && del_y == 0)del_angle = 90;
+                    else if (del_x < 0 && del_y == 0)del_angle = 270;
+                    else if (del_x == 0 && del_y == 0) del_angle = 0;
+
+                    deldel_angle = del_angle - cr[i].angle;
+                    if (deldel_angle >= 0 && deldel_angle <= 180) cr[i].del_ang_vel = cr[i].del_ang_vel - deldel_angle * stuff_ang_vel_study * (1.0 / (1 + exp(distance - stuff_dis_cons)));
+                    else if (deldel_angle >= 180 && deldel_angle <= 360) cr[i].del_ang_vel = cr[i].del_ang_vel - (deldel_angle - 360) * stuff_ang_vel_study * (1.0 / (1 + exp(distance - stuff_dis_cons)));
+                    else if (deldel_angle <= 0 && deldel_angle >= -180) cr[i].del_ang_vel = cr[i].del_ang_vel - deldel_angle * stuff_ang_vel_study * (1.0 / (1 + exp(distance - stuff_dis_cons)));
+                    else if (deldel_angle <= -180 && deldel_angle >= -360)cr[i].del_ang_vel = cr[i].del_ang_vel - (deldel_angle + 360) * stuff_ang_vel_study * (1.0 / (1 + exp(distance - stuff_dis_cons)));
+                }
+            }
+        }
+
     }
 
+}
+
+void wall(Creature* cr, int num) {
+    int i = 0;
+    int j = 0;
+
+    for (i = 0; i < num; i++) { // i'th creature
+
+
+            if (cr[i].x<screen_margin) {
+
+                    float del_angle = 270;
+                    float deldel_angle = 0;
+
+                    deldel_angle = del_angle - cr[i].angle;
+
+                    if (deldel_angle >= 0 && deldel_angle <= 180) cr[i].del_ang_vel = cr[i].del_ang_vel - deldel_angle * wall_ang_vel_study * (1.0 / (1 + exp(-wall_dis_cons)));
+                    else if (deldel_angle >= 180 && deldel_angle <= 360) cr[i].del_ang_vel = cr[i].del_ang_vel - (deldel_angle - 360) * wall_ang_vel_study * (1.0 / (1 + exp(-wall_dis_cons)));
+                    else if (deldel_angle <= 0 && deldel_angle >= -180) cr[i].del_ang_vel = cr[i].del_ang_vel - deldel_angle * wall_ang_vel_study * (1.0 / (1 + exp(-wall_dis_cons)));
+                    else if (deldel_angle <= -180 && deldel_angle >= -360)cr[i].del_ang_vel = cr[i].del_ang_vel- (deldel_angle + 360) * wall_ang_vel_study * (1.0 / (1 + exp( -wall_dis_cons)));
+            }
+            if (cr[i].x > screen_w-screen_margin) {
+
+                float del_angle = 90;
+                float deldel_angle = 0;
+
+                deldel_angle = del_angle - cr[i].angle;
+
+                if (deldel_angle >= 0 && deldel_angle <= 180) cr[i].del_ang_vel = cr[i].del_ang_vel - deldel_angle * wall_ang_vel_study * (1.0 / (1 + exp(-wall_dis_cons)));
+                else if (deldel_angle >= 180 && deldel_angle <= 360) cr[i].del_ang_vel = cr[i].del_ang_vel - (deldel_angle - 360) * wall_ang_vel_study * (1.0 / (1 + exp(-wall_dis_cons)));
+                else if (deldel_angle <= 0 && deldel_angle >= -180) cr[i].del_ang_vel = cr[i].del_ang_vel - deldel_angle * wall_ang_vel_study * (1.0 / (1 + exp(-wall_dis_cons)));
+                else if (deldel_angle <= -180 && deldel_angle >= -360)cr[i].del_ang_vel = cr[i].del_ang_vel - (deldel_angle + 360) * wall_ang_vel_study * (1.0 / (1 + exp(-wall_dis_cons)));
+            }
+            if (cr[i].y < screen_margin) {
+
+                float del_angle = 0;
+                float deldel_angle = 0;
+
+                deldel_angle = del_angle - cr[i].angle;
+
+                if (deldel_angle >= 0 && deldel_angle <= 180) cr[i].del_ang_vel = cr[i].del_ang_vel - deldel_angle * wall_ang_vel_study * (1.0 / (1 + exp(-wall_dis_cons)));
+                else if (deldel_angle >= 180 && deldel_angle <= 360) cr[i].del_ang_vel = cr[i].del_ang_vel - (deldel_angle - 360) * wall_ang_vel_study * (1.0 / (1 + exp(-wall_dis_cons)));
+                else if (deldel_angle <= 0 && deldel_angle >= -180) cr[i].del_ang_vel = cr[i].del_ang_vel - deldel_angle * wall_ang_vel_study * (1.0 / (1 + exp(-wall_dis_cons)));
+                else if (deldel_angle <= -180 && deldel_angle >= -360)cr[i].del_ang_vel = cr[i].del_ang_vel - (deldel_angle + 360) * wall_ang_vel_study * (1.0 / (1 + exp(-wall_dis_cons)));
+            }
+            if (cr[i].y > screen_h-screen_margin) {
+
+                float del_angle = 180;
+                float deldel_angle = 0;
+
+                deldel_angle = del_angle - cr[i].angle;
+
+                if (deldel_angle >= 0 && deldel_angle <= 180) cr[i].del_ang_vel = cr[i].del_ang_vel - deldel_angle * wall_ang_vel_study * (1.0 / (1 + exp(-wall_dis_cons)));
+                else if (deldel_angle >= 180 && deldel_angle <= 360) cr[i].del_ang_vel = cr[i].del_ang_vel - (deldel_angle - 360) * wall_ang_vel_study * (1.0 / (1 + exp(-wall_dis_cons)));
+                else if (deldel_angle <= 0 && deldel_angle >= -180) cr[i].del_ang_vel = cr[i].del_ang_vel - deldel_angle * wall_ang_vel_study * (1.0 / (1 + exp(-wall_dis_cons)));
+                else if (deldel_angle <= -180 && deldel_angle >= -360)cr[i].del_ang_vel = cr[i].del_ang_vel - (deldel_angle + 360) * wall_ang_vel_study * (1.0 / (1 + exp(-wall_dis_cons)));
+            }
+
+
+    }
 }
 
 void clean_ang_vel(Creature* cr, int num) {
