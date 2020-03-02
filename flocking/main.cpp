@@ -29,6 +29,9 @@
 # define screen_margin 50
 # define wall_ang_vel_study 200
 # define wall_dis_cons 60
+# define mouse_effective_distance 300
+# define mouse_ang_vel_study 50
+# define mouse_dis_cons 300
 
 typedef struct creature {
     float x;
@@ -38,6 +41,16 @@ typedef struct creature {
     float del_velocity;
     float ang_vel;
     float del_ang_vel;
+    int color; 
+    /*
+    0 black
+    1 blue
+    2 green
+    3 orange
+    4 purple
+    5 red
+    6 yellow
+    */
 }Creature;
 
 typedef struct stuff {
@@ -55,6 +68,7 @@ void seperation(Creature* cr, int num);
 void del_vel_and_vel_apply(Creature* cr, int num);
 void avoid_stuff(Creature* cr, int num, Stuff* sf, int num_sf);
 void wall(Creature* cr, int num);
+void mouse_interaction(Creature* cr, int num, int mouse_x, int mouse_y, bool mouse_click_l, bool mouse_click_r);
 
 SDL_Window* window;
 SDL_Renderer* renderer;
@@ -145,9 +159,21 @@ int main(int argc, char* argv[])
 
     SDL_Texture* back_ground;
     SDL_Texture* creature;
+    SDL_Texture* creature1;
+    SDL_Texture* creature2;
+    SDL_Texture* creature3;
+    SDL_Texture* creature4;
+    SDL_Texture* creature5;
+    SDL_Texture* creature6;
 
-    back_ground = loadTexture("resource\\ground.png");
+    back_ground = loadTexture("resource\\ground_2.png");
     creature = loadTexture("resource\\creature.png");
+    creature1 = loadTexture("resource\\creature_b.png");
+    creature2 = loadTexture("resource\\creature_g.png");
+    creature3 = loadTexture("resource\\creature_o.png");
+    creature4 = loadTexture("resource\\creature_p.png");
+    creature5 = loadTexture("resource\\creature_r.png");
+    creature6 = loadTexture("resource\\creature_y.png");
 
     int total_frame_start = 0;
     int total_frame_end = 0;
@@ -166,6 +192,11 @@ int main(int argc, char* argv[])
 
     bool Q_key = false;
     bool W_key = false;
+
+    bool mouse_click_r = false;
+    bool mouse_click_l = false;
+    int mouse_x = 0;
+    int mouse_y = 0;
 
     srand((unsigned int)time(NULL));
 
@@ -208,16 +239,18 @@ int main(int argc, char* argv[])
                         temp_CRT[i].del_velocity = CRT[i].del_velocity;
                         temp_CRT[i].ang_vel = CRT[i].ang_vel;
                         temp_CRT[i].del_ang_vel = CRT[i].del_ang_vel;
+                        temp_CRT[i].color = CRT[i].color;
                     }
                     free(CRT); CRT = NULL; // return CRT pointer to null
 
-                    temp_CRT[temp_num - 1].x = ren_num(0,screen_w);
-                    temp_CRT[temp_num - 1].y = ren_num(0,screen_h);
+                    temp_CRT[temp_num - 1].x = ren_num(screen_margin,screen_w- screen_margin);
+                    temp_CRT[temp_num - 1].y = ren_num(screen_margin,screen_h- screen_margin);
                     temp_CRT[temp_num - 1].angle = ren_num(0, 360);
                     temp_CRT[temp_num - 1].velocity = ren_num(max_speed, max_speed);
                     temp_CRT[temp_num - 1].del_velocity = 0;
                     temp_CRT[temp_num - 1].ang_vel = ren_num(-max_ang_speed, max_ang_speed);
                     temp_CRT[temp_num - 1].del_ang_vel = 0;
+                    temp_CRT[temp_num - 1].color = ren_num(1, 6);
 
                     CRT = temp_CRT; num = temp_num;
                     temp_num = 0; temp_CRT = NULL;
@@ -238,6 +271,7 @@ int main(int argc, char* argv[])
                             temp_CRT[i].del_velocity = CRT[i].del_velocity;
                             temp_CRT[i].ang_vel = CRT[i].ang_vel;
                             temp_CRT[i].del_ang_vel = CRT[i].del_ang_vel;
+                            temp_CRT[i].color = CRT[i].color;
                         }
                         free(CRT); CRT = NULL; // return CRT pointer to null
 
@@ -255,6 +289,27 @@ int main(int argc, char* argv[])
                 if (event.key.keysym.sym == SDLK_w && W_key == true) {
                     W_key = false;
                 }
+                break;
+                case SDL_MOUSEBUTTONDOWN:
+                    if (event.button.button == SDL_BUTTON_LEFT && mouse_click_l == false) {
+                        if (mouse_click_r == false) mouse_click_l = true;
+                    }
+                    else if (event.button.button == SDL_BUTTON_RIGHT && mouse_click_r == false) {
+                        if (mouse_click_l == false) mouse_click_r = true;
+                    }
+                    break;
+                case SDL_MOUSEBUTTONUP:
+                    if (event.button.button == SDL_BUTTON_LEFT && mouse_click_l == true) {
+                        mouse_click_l = false;
+                    }
+                    else if (event.button.button == SDL_BUTTON_RIGHT && mouse_click_r == true) {
+                        mouse_click_r = false;
+                    }
+                    break;
+                case SDL_MOUSEMOTION:
+                        mouse_x = event.motion.x;
+                        mouse_y = event.motion.y;
+                    break;
 
             }
  //           printf("cccc ");
@@ -266,8 +321,13 @@ int main(int argc, char* argv[])
       //     stretchTextureEx_revise(renderer, 0, 0, 17, 25, 8.5, 16.669, creature, 180);
 
             for (i = 0; i < num; i ++) {
-                stretchTextureEx_revise(renderer, CRT[i].x-8.5, CRT[i].y-16.669, 17, 25, 8.5, 16.669, creature, CRT[i].angle);
- //               printf("asdf ");
+               if(CRT[i].color==0) stretchTextureEx_revise(renderer, CRT[i].x-8.5, CRT[i].y-16.669, 17, 25, 8.5, 16.669, creature, CRT[i].angle);
+               else if (CRT[i].color == 1) stretchTextureEx_revise(renderer, CRT[i].x - 8.5, CRT[i].y - 16.669, 17, 25, 8.5, 16.669, creature1, CRT[i].angle);
+               else if (CRT[i].color == 2) stretchTextureEx_revise(renderer, CRT[i].x - 8.5, CRT[i].y - 16.669, 17, 25, 8.5, 16.669, creature2, CRT[i].angle);
+               else if (CRT[i].color == 3) stretchTextureEx_revise(renderer, CRT[i].x - 8.5, CRT[i].y - 16.669, 17, 25, 8.5, 16.669, creature3, CRT[i].angle);
+               else if (CRT[i].color == 4) stretchTextureEx_revise(renderer, CRT[i].x - 8.5, CRT[i].y - 16.669, 17, 25, 8.5, 16.669, creature4, CRT[i].angle);
+               else if (CRT[i].color == 5) stretchTextureEx_revise(renderer, CRT[i].x - 8.5, CRT[i].y - 16.669, 17, 25, 8.5, 16.669, creature5, CRT[i].angle);
+               else if (CRT[i].color == 6) stretchTextureEx_revise(renderer, CRT[i].x - 8.5, CRT[i].y - 16.669, 17, 25, 8.5, 16.669, creature6, CRT[i].angle);
             }
   //          printf("%d ",num);
             alignment(CRT, num);
@@ -277,6 +337,7 @@ int main(int argc, char* argv[])
             avoid_stuff(CRT, num, sf, num_stuff);
             wall(CRT, num);
             move(CRT, num);
+            mouse_interaction(CRT, num, mouse_x, mouse_y, mouse_click_l, mouse_click_r);
  //           clean_ang_vel(CRT, num);
 
             SDL_RenderPresent(renderer);
@@ -597,6 +658,82 @@ void wall(Creature* cr, int num) {
 
 
     }
+}
+
+void mouse_interaction(Creature* cr, int num, int mouse_x, int mouse_y, bool mouse_click_l, bool mouse_click_r) {
+    int i = 0;
+    int j = 0;
+
+    for (i = 0; i < num; i++) { // i'th creature with stuff
+
+            float distance = 0;
+            if (mouse_click_r == true) {
+                distance = sqrt((cr[i].x - mouse_x) * (cr[i].x - mouse_x) + (cr[i].y - mouse_y) * (cr[i].y - mouse_y));
+
+                if (distance < mouse_effective_distance) {
+
+                    float del_x = (cr[i].x - mouse_x);
+                    float del_y = (cr[i].y - mouse_y);
+
+                    float del_angle = 0;
+                    float deldel_angle = 0;
+
+                    if (del_x > 0) {
+                        if (del_y < 0) del_angle = 180 * (1 / pi) * atan(-del_x / del_y);
+                        else if (del_y > 0) del_angle = 90 + 180 * (1 / pi) * atan(del_y / del_x);
+                    }
+                    else if (del_x < 0) {
+                        if (del_y < 0) del_angle = 270 + 180 * (1 / pi) * atan(del_y / del_x);
+                        else if (del_y > 0) del_angle = 180 + 180 * (1 / pi) * atan(-del_x / del_y);
+                    }
+                    if (del_x == 0 && del_y < 0)del_angle = 0;
+                    else if (del_x == 0 && del_y > 0)del_angle = 180;
+                    else if (del_x > 0 && del_y == 0)del_angle = 90;
+                    else if (del_x < 0 && del_y == 0)del_angle = 270;
+                    else if (del_x == 0 && del_y == 0) del_angle = 0;
+
+                    deldel_angle = del_angle - cr[i].angle;
+                    if (deldel_angle >= 0 && deldel_angle <= 180) cr[i].del_ang_vel = cr[i].del_ang_vel + deldel_angle * mouse_ang_vel_study * (1.0 / (1 + exp(distance - mouse_dis_cons)));
+                    else if (deldel_angle >= 180 && deldel_angle <= 360) cr[i].del_ang_vel = cr[i].del_ang_vel + (deldel_angle - 360) * mouse_ang_vel_study * (1.0 / (1 + exp(distance - mouse_dis_cons)));
+                    else if (deldel_angle <= 0 && deldel_angle >= -180) cr[i].del_ang_vel = cr[i].del_ang_vel + deldel_angle * mouse_ang_vel_study * (1.0 / (1 + exp(distance - mouse_dis_cons)));
+                    else if (deldel_angle <= -180 && deldel_angle >= -360)cr[i].del_ang_vel = cr[i].del_ang_vel + (deldel_angle + 360) * mouse_ang_vel_study * (1.0 / (1 + exp(distance - mouse_dis_cons)));
+                }
+            }
+            else if (mouse_click_l == true) {
+                distance = sqrt((cr[i].x - mouse_x) * (cr[i].x - mouse_x) + (cr[i].y - mouse_y) * (cr[i].y - mouse_y));
+
+                if (distance < mouse_effective_distance) {
+
+                    float del_x = (cr[i].x - mouse_x);
+                    float del_y = (cr[i].y - mouse_y);
+
+                    float del_angle = 0;
+                    float deldel_angle = 0;
+
+                    if (del_x > 0) {
+                        if (del_y < 0) del_angle = 180 * (1 / pi) * atan(-del_x / del_y);
+                        else if (del_y > 0) del_angle = 90 + 180 * (1 / pi) * atan(del_y / del_x);
+                    }
+                    else if (del_x < 0) {
+                        if (del_y < 0) del_angle = 270 + 180 * (1 / pi) * atan(del_y / del_x);
+                        else if (del_y > 0) del_angle = 180 + 180 * (1 / pi) * atan(-del_x / del_y);
+                    }
+                    if (del_x == 0 && del_y < 0)del_angle = 0;
+                    else if (del_x == 0 && del_y > 0)del_angle = 180;
+                    else if (del_x > 0 && del_y == 0)del_angle = 90;
+                    else if (del_x < 0 && del_y == 0)del_angle = 270;
+                    else if (del_x == 0 && del_y == 0) del_angle = 0;
+
+                    deldel_angle = del_angle - cr[i].angle;
+                    if (deldel_angle >= 0 && deldel_angle <= 180) cr[i].del_ang_vel = cr[i].del_ang_vel - deldel_angle * mouse_ang_vel_study * (1.0 / (1 + exp(distance - mouse_dis_cons)));
+                    else if (deldel_angle >= 180 && deldel_angle <= 360) cr[i].del_ang_vel = cr[i].del_ang_vel - (deldel_angle - 360) * mouse_ang_vel_study * (1.0 / (1 + exp(distance - mouse_dis_cons)));
+                    else if (deldel_angle <= 0 && deldel_angle >= -180) cr[i].del_ang_vel = cr[i].del_ang_vel - deldel_angle * mouse_ang_vel_study * (1.0 / (1 + exp(distance - mouse_dis_cons)));
+                    else if (deldel_angle <= -180 && deldel_angle >= -360)cr[i].del_ang_vel = cr[i].del_ang_vel - (deldel_angle + 360) * mouse_ang_vel_study * (1.0 / (1 + exp(distance - mouse_dis_cons)));
+                }
+            }
+
+    }
+
 }
 
 void clean_ang_vel(Creature* cr, int num) {
