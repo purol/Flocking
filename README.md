@@ -39,6 +39,13 @@ There are three rules.
 
 Moreover, I added additional rule for evading wall and mouse control(repulse and allure to mouse)
 
+Photography
+-------------
+![Alt text](/flocking/image/20191012_111544.jpg "7")
+![Alt text](/flocking/image/20191012_111822.jpg "8")
+![Alt text](/flocking/image/20191012_112216.jpg "9")
+These are the photography which I took on kyoto aquarium. You can see tiny fishes moving on the tank.
+
 Reference
 -------------
 http://aidev.co.kr/alife/477
