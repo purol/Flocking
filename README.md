@@ -11,12 +11,12 @@ Build the code or just run x64\Release\flocking.exe
 
 Gif files
 -------------
-![Alt text](/flocking/gif/add_wall_2020-03-01_10-24-07.gif "1")
-![Alt text](/flocking/gif/align_angle_only.gif "2")
-![Alt text](/flocking/gif/2020-03-02_20-39-55.gif "3")
-![Alt text](/flocking/gif/2020-03-02_20-40-45.gif "4")
-![Alt text](/flocking/gif/2020-03-02_20-41-39.gif "5")
-![Alt text](/flocking/gif/2020-03-02_20-42-42.gif "6")
+![Alt text](/flocking/image/add_wall_2020-03-01_10-24-07.gif "1")
+![Alt text](/flocking/image/align_angle_only.gif "2")
+![Alt text](/flocking/image/2020-03-02_20-39-55.gif "3")
+![Alt text](/flocking/image/2020-03-02_20-40-45.gif "4")
+![Alt text](/flocking/image/2020-03-02_20-41-39.gif "5")
+![Alt text](/flocking/image/2020-03-02_20-42-42.gif "6")
 
 How to play
 -------------
@@ -28,7 +28,7 @@ mouse right button : attracting creatures
 
 mouse left button : repulse creatures
 
-I hope you join it!
+I hope you enjoy it!
 
 How it works
 -------------
