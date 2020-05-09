@@ -11,6 +11,7 @@ When I visited Kyoto Aquarium(October 12, 2019), I saw lots of tiny fishes which
 How to use it
 -------------
 > If you do not have Visual Studio, then you need do install Visual C++ Redistributable. Here is the link (https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads)
+
 Build the code or just run x64\Release\flocking.exe
 
 Gif files
