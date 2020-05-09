@@ -1,12 +1,16 @@
 # Flocking
 It is made for describing flocking behavior.
 
+You can build it by Visual Studio 2019 (different version can cause some problem.)
+or you can just run x64\Release\opencvtest.exe. 
+
 Motivation
 -------------
 When I visited Kyoto Aquarium(October 12, 2019), I saw lots of tiny fishes which moved with synchronization. I was inspired about that, so I have tried to the way how I can described it.
 
 How to use it
 -------------
+> If you do not have Visual Studio, then you need do install Visual C++ Redistributable. Here is the link (https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads)
 Build the code or just run x64\Release\flocking.exe
 
 Gif files
