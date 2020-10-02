@@ -1,16 +1,16 @@
 # Flocking
 It is made for describing flocking behavior.
 
-You can build it by Visual Studio 2019 (different version can cause some problem.)
+You can build it by Visual Studio 2019 (different versions can cause some problems.)
 or you can just run x64\Release\opencvtest.exe. 
 
 Motivation
 -------------
-When I visited Kyoto Aquarium(October 12, 2019), I saw lots of tiny fishes which moved with synchronization. I was inspired about that, so I have tried to the way how I can described it.
+When I visited Kyoto Aquarium(October 12, 2019), I saw lots of tiny fishes that moved with synchronization. I was inspired by that, so I have tried to find a way how I can describe it.
 
 How to use it
 -------------
-> If you do not have Visual Studio, then you need do install Visual C++ Redistributable. Here is the link (https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads)
+> If you do not have Visual Studio, then you need to install Visual C++ Redistributable. Here is the link (https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads)
 
 Build the code or just run x64\Release\flocking.exe
 
@@ -38,11 +38,11 @@ I hope you enjoy it!
 How it works
 -------------
 There are three rules.
-1. separation among creatures. Within specific distance, creatures try to break away from others. 
-2. alignment among creatures. Within specific distance, creatures try to get average velocity and orientation with others. 
-3. cohesion among creatures. Within specific distance, creatures try to go to average point of others. 
+1. separation among creatures. Within a specific distance, creatures try to break away from others. 
+2. alignment among creatures. Within a specific distance, creatures try to get average velocity and orientation with others. 
+3. cohesion among creatures. Within a specific distance, creatures try to go to the average point of others. 
 
-Moreover, I added additional rule for evading wall and mouse control(repulse and allure to mouse)
+Moreover, I added an additional rule for evading wall and mouse control (repulse and allure to mouse)
 
 Photography
 -------------
